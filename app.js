@@ -1,6 +1,11 @@
+// npm run start:dev
+
+require('dotenv').config({path: `${process.cwd()}/.env`})
+
 const express = require('express');
 
 const authRouter = require('./route/authRoute');
+const { status } = require('express/lib/response');
 
 const app = express();
 
@@ -14,6 +19,15 @@ app.get('/', (req, res) => {
 // todas as rotas estarão aqui
 app.use('/api/v1/auth', authRouter);
 
-app.listen(3000, () => {
-    console.log('Servidor rodando')
+app.use('*', (req, res, next) => {
+    res.status(404).json({
+        status: 'fail',
+        message: 'Route não encontrada'
+    })
+})
+
+const PORT = process.env.APP_PORT || 4000;
+
+app.listen(process.env.APP_PORT, () => {
+    console.log('Servidor rodando', PORT)
 })
