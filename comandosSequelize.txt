@@ -8,3 +8,5 @@ gerar atributos ->   npx sequelize-cli model:generate --name <nomeTabela> --attr
 
 
 criar tabelas no banco de dados -> npx sequelize-cli db:migrate
+
+deletar tabelas para quando ter que fazer alterações nela -> npx sequelize-cli db:migrate:undo
