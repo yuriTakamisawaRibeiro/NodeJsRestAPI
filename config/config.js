@@ -1,3 +1,5 @@
+// configuração das variaveis de ambiente do banco de dados
+
 require('dotenv').config({path: `${process.cwd()}/.env`})
 
 module.exports = {

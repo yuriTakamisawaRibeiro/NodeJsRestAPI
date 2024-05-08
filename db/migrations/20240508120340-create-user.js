@@ -2,7 +2,7 @@
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up(queryInterface, Sequelize) {
-    await queryInterface.createTable('Users', {
+    await queryInterface.createTable('user', {
       id: {
         allowNull: false,
         autoIncrement: true,
@@ -10,15 +10,16 @@ module.exports = {
         type: Sequelize.INTEGER
       },
       userType: {
-        type: Sequelize.ENUM
+        // tipos de usuario, 0=admin, 1=usuario, 2=terapeuta
+        type: Sequelize.ENUM('0', '1', '2')
       },
-      firstName: {
-        type: Sequelize.STRING
-      },
-      lastName: {
+      name: {
         type: Sequelize.STRING
       },
       email: {
+        type: Sequelize.STRING
+      },
+      cpf: {
         type: Sequelize.STRING
       },
       password: {
@@ -31,7 +32,12 @@ module.exports = {
       updatedAt: {
         allowNull: false,
         type: Sequelize.DATE
+      },
+      deletedAt: {
+        allowNull: true,
+        type: Sequelize.DATE
       }
+      
     });
   },
   async down(queryInterface, Sequelize) {

@@ -1,4 +1,4 @@
-// npm run start:dev
+// rodar projeto -> npm run start:dev
 
 require('dotenv').config({path: `${process.cwd()}/.env`})
 

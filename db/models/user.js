@@ -2,26 +2,45 @@
 const {
   Model
 } = require('sequelize');
-module.exports = (sequelize, DataTypes) => {
-  class User extends Model {
-    /**
-     * Helper method for defining associations.
-     * This method is not a part of Sequelize lifecycle.
-     * The `models/index` file will call this method automatically.
-     */
-    static associate(models) {
-      // define association here
-    }
+const sequelize = require('../../config/database');
+
+module.exports = sequelize.define('user', {
+  id: {
+    allowNull: false,
+    autoIncrement: true,
+    primaryKey: true,
+    type: Sequelize.INTEGER
+  },
+  userType: {
+    type: Sequelize.ENUM('0', '1', '2')
+  },
+  name: {
+    type: Sequelize.STRING
+  },
+  email: {
+    type: Sequelize.STRING
+  },
+  cpf: {
+    type: Sequelize.STRING
+  },
+  password: {
+    type: Sequelize.STRING
+  },
+  createdAt: {
+    allowNull: false,
+    type: Sequelize.DATE
+  },
+  updatedAt: {
+    allowNull: false,
+    type: Sequelize.DATE
+  },
+  deletedAt: {
+    allowNull: true,
+    type: Sequelize.DATE
   }
-  User.init({
-    userType: DataTypes.ENUM,
-    firstName: DataTypes.STRING,
-    lastName: DataTypes.STRING,
-    email: DataTypes.STRING,
-    password: DataTypes.STRING
-  }, {
-    sequelize,
-    modelName: 'User',
-  });
-  return User;
-};
+  
+}, {
+  paranoid: true, // paranoid vai fazer com que os dados deletados não sejam realmente deletados, só marcados como deletados
+  freezeTableName: true,
+  modelName: 'user'
+})
