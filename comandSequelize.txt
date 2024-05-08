@@ -1,0 +1,8 @@
+comandos do sequelize-cli
+
+gerar banco de dados ->  npx sequelize-cli db:create
+
+
+gerar atributos ->   npx sequelize-cli model:generate --name <nomeTabela> --attributes nomeAtributo:TIPOATRIBUTO
+
+
