@@ -1,8 +1,9 @@
 'use strict';
-const {
-  Model
-} = require('sequelize');
+const { Model, DataTypes } = require('sequelize'); 
 const sequelize = require('../../config/database');
+
+
+const Sequelize = require('sequelize');
 
 module.exports = sequelize.define('user', {
   id: {
@@ -38,9 +39,8 @@ module.exports = sequelize.define('user', {
     allowNull: true,
     type: Sequelize.DATE
   }
-  
 }, {
-  paranoid: true, // paranoid vai fazer com que os dados deletados não sejam realmente deletados, só marcados como deletados
+  paranoid: true,
   freezeTableName: true,
   modelName: 'user'
-})
+});
