@@ -1,7 +1,7 @@
 'use strict';
 const { Model, DataTypes } = require('sequelize'); 
 const sequelize = require('../../config/database');
-
+const bcrypt = require('bcrypt');
 
 const Sequelize = require('sequelize');
 
@@ -10,34 +10,45 @@ module.exports = sequelize.define('user', {
     allowNull: false,
     autoIncrement: true,
     primaryKey: true,
-    type: Sequelize.INTEGER
+    type: DataTypes.INTEGER
   },
   userType: {
-    type: Sequelize.ENUM('0', '1', '2')
+    type: DataTypes.ENUM('0', '1', '2')
   },
   name: {
-    type: Sequelize.STRING
+    type: DataTypes.STRING
   },
   email: {
-    type: Sequelize.STRING
+    type: DataTypes.STRING
   },
   cpf: {
-    type: Sequelize.STRING
+    type: DataTypes.STRING
   },
   password: {
-    type: Sequelize.STRING
+    type: DataTypes.STRING
+  },
+  confirmPassword: {
+    type: DataTypes.VIRTUAL,
+    set(value) {
+      if(value === this.password) {
+          const hashPassword = bcrypt.hashSync(value, 10);
+          this.setDataValue('password', hashPassword);
+      } else {
+        throw new Error('Senha incorreta.')
+      }
+    }
   },
   createdAt: {
     allowNull: false,
-    type: Sequelize.DATE
+    type: DataTypes.DATE
   },
   updatedAt: {
     allowNull: false,
-    type: Sequelize.DATE
+    type: DataTypes.DATE
   },
   deletedAt: {
     allowNull: true,
-    type: Sequelize.DATE
+    type: DataTypes.DATE
   }
 }, {
   paranoid: true,

@@ -12,12 +12,14 @@ const signup = (req, res, next) => {
     });
    }
 
+//    dados que serão pedidos do usuario
    const newUser = user.create({
     userType: body.userType,
     name: body.name,
     email: body.email,
     cpf: body.cpf,
-    password: body.password
+    password: body.password,
+    confirmPassword: body.confirmPassword
    });
 
    if(!newUser) {
