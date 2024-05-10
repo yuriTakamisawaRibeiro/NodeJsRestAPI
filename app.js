@@ -3,6 +3,7 @@
 require('dotenv').config({path: `${process.cwd()}/.env`})
 
 const express = require('express');
+const cors = require('cors');
 
 const authRouter = require('./route/authRoute');
 const { status } = require('express/lib/response');
@@ -10,6 +11,8 @@ const { status } = require('express/lib/response');
 const app = express();
 
 app.use(express.json());
+
+app.use(cors());
 
 app.get('/', (req, res) => {
     res.status(200).json({
@@ -19,7 +22,7 @@ app.get('/', (req, res) => {
 })
 
 // todas as rotas estarão aqui
-app.use('/api/v1/auth', authRouter);
+app.use('/auth', authRouter);
 
 app.use('*', (req, res, next) => {
     res.status(404).json({

@@ -8,7 +8,7 @@ const generateToken = (payload) => {
     });
 };
 
-const signup = async (req, res, next) => { // Adicionando async para lidar com a promessa
+const signup = async (req, res, next) => {
     const body = req.body;
 
     if (!['1', '2'].includes(body.userType)) {
@@ -20,13 +20,13 @@ const signup = async (req, res, next) => { // Adicionando async para lidar com a
 
     try {
         // Criando o novo usuário e esperando a promessa ser resolvida
+        const hashedPassword = await bcrypt.hash(body.password, 10); // Criptografa a senha
         const newUser = await user.create({
             userType: body.userType,
             name: body.name,
             email: body.email,
             cpf: body.cpf,
-            password: body.password,
-            confirmPassword: body.confirmPassword
+            password: hashedPassword // Armazena a senha criptografada
         });
 
         // Convertendo o modelo criado em JSON
