@@ -2,36 +2,28 @@ const user = require('../db/models/user');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
 
-const cpfValidator = require('cpf-cnpj-validator').default;
-
 const generateToken = (payload) => {
     return jwt.sign(payload, process.env.JWT_SECRET_KEY, {
         expiresIn: process.env.JWT_EXPIRES_IN
     });
 };
 
-const validateCpf = (cpf) => {
-    return cpfValidator.isValid(cpf);
-}
+
 
 const signup = async (req, res, next) => {
     const body = req.body;
 
-    if (!['1', '2'].includes(body.userType)) {
+    if (!['1', '2'].includes(String(body.userType))) {
         return res.status(400).json({
             status: 'fail',
             message: 'User Type inválido'
         });
     }
 
+
     try {
 
-        if (!validateCpf(body.cpf)) {
-            return res.status(400).json({
-                status: 'fail',
-                message: 'CPF inválido.'
-            });
-        }
+       
         
         // Criando o novo usuário e esperando a promessa ser resolvida
         const hashedPassword = await bcrypt.hash(body.password, 10); // Criptografa a senha
