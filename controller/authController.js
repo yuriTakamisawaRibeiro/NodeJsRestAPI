@@ -1,10 +1,20 @@
 const user = require('../db/models/user');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
+const { Op } = require('sequelize');
 
 const generateToken = (payload) => {
     return jwt.sign(payload, process.env.JWT_SECRET_KEY, {
         expiresIn: process.env.JWT_EXPIRES_IN
+    });
+};
+
+const logout = (req, res, next) => {
+   
+    res.cookie('token', '', { expires: new Date(0) }); // Define o cookie para expirar imediatamente
+    res.status(200).json({
+        status: 'success',
+        message: 'Logout realizado com sucesso.'
     });
 };
 
@@ -20,11 +30,28 @@ const signup = async (req, res, next) => {
         });
     }
 
-
     try {
+        // Determina qual campo verificar com base no userType
+        const fieldToCheck = body.userType === '1'? 'cpf' : 'cfm';
 
-       
-        
+        // Verifica se o campo especificado já existe
+        const existingUser = await user.findOne({
+            where: {
+                [fieldToCheck]: body[fieldToCheck]
+            }
+        });
+
+        if (existingUser) {
+            return res.status(400).json({
+                status: 'fail',
+                message: 'CPF ou CFM já existem.'
+            });
+        }
+
+        // Determina quais campos são obrigatórios com base no userType
+        const requiredField = body.userType === '1'? 'cfm' : 'cpf';
+        const optionalField = body.userType === '1'? 'cpf' : 'cfm';
+
         // Criando o novo usuário e esperando a promessa ser resolvida
         const hashedPassword = await bcrypt.hash(body.password, 10); // Criptografa a senha
         const newUser = await user.create({
@@ -32,10 +59,11 @@ const signup = async (req, res, next) => {
             name: body.name,
             email: body.email,
             cpf: body.cpf,
+            cfm: body.cfm,
             password: hashedPassword // Armazena a senha criptografada
         });
 
-        // Convertendo o modelo criado em JSON
+        // Converte o modelo criado em JSON
         const result = newUser.toJSON();
 
         delete result.password;
@@ -56,6 +84,8 @@ const signup = async (req, res, next) => {
         });
     }
 };
+
+
 
 const updateUser = async (req, res, next) => {
     const { id } = req.params; // Obtém o ID do usuário a partir dos parâmetros da requisição
@@ -177,4 +207,4 @@ const login = async (req, res, next) => {
 
 
 
-module.exports = { signup, login, deleteUser, updateUser };
+module.exports = { signup, login, deleteUser, updateUser, logout };

@@ -16,18 +16,30 @@ module.exports = sequelize.define('user', {
     type: DataTypes.ENUM('0', '1', '2')
   },
   name: {
+    allowNull: false,
     type: DataTypes.STRING
   },
   email: {
-    type: DataTypes.STRING
+    allowNull: false,
+    type: DataTypes.STRING,
+    unique: true 
   },
   cpf: {
-    type: DataTypes.STRING
+    allowNull: true,
+    type: DataTypes.STRING,
+    unique: true 
+  },
+  cfm: {
+    allowNull: true,
+    type: DataTypes.STRING,
+    unique: true 
   },
   password: {
+    allowNull: false,
     type: DataTypes.STRING
   },
   confirmPassword: {
+    allowNull: true,
     type: DataTypes.VIRTUAL,
     set(value) {
       if(value === this.password) {
@@ -53,5 +65,13 @@ module.exports = sequelize.define('user', {
 }, {
   paranoid: true,
   freezeTableName: true,
-  modelName: 'user'
+  modelName: 'user',
+  indexes: [
+    {
+      fields: ['email']
+    },
+    {
+      fields: ['cpf']
+    }
+  ]
 });
