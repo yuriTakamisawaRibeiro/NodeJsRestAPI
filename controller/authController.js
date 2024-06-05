@@ -9,6 +9,37 @@ const generateToken = (payload) => {
     });
 };
 
+
+const login = async (req, res, next) => {
+    const { email, password } = req.body;
+
+    if(!email || !password ) {
+        return res.status(400).json({
+            status: 'fail',
+            message: 'Digite o email ou senha.'
+        });
+    }
+
+    const result = await user.findOne({where: { email }});
+    if(!result || !(await bcrypt.compare(password, result.password))) {
+        return res.status(401).json({
+            status: 'fail',
+            message: 'Email ou senha incorretos.'
+        });
+    }
+
+    const token = generateToken({
+        id: result.id,
+    });
+
+    return res.json({
+        status: 'success',
+        token,
+    })
+
+
+}
+
 const logout = (req, res, next) => {
    
     res.cookie('token', '', { expires: new Date(0) }); // Define o cookie para expirar imediatamente
@@ -175,36 +206,62 @@ const deleteUser = async (req, res, next) => {
 };
 
 
-const login = async (req, res, next) => {
-    const { email, password } = req.body;
 
-    if(!email || !password ) {
-        return res.status(400).json({
+
+const getAllUsers = async (req, res, next) => {
+    try {
+        // Busca todos os usuários no banco de dados
+        const users = await user.findAll({
+            attributes: { exclude: ['password'] }, // Exclui a coluna de senha dos resultados
+        });
+
+        // Retorna os usuários encontrados
+        return res.status(200).json({
+            status: 'success',
+            data: users
+        });
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({
             status: 'fail',
-            message: 'Digite o email ou senha.'
+            message: 'Erro ao buscar usuários.'
         });
     }
+};
 
-    const result = await user.findOne({where: { email }});
-    if(!result || !(await bcrypt.compare(password, result.password))) {
-        return res.status(401).json({
+
+const getUserById = async (req, res, next) => {
+    const { id } = req.params; // Obtém o ID do usuário a partir dos parâmetros da requisição
+
+    try {
+        // Busca o usuário pelo ID no banco de dados
+        const userFound = await user.findByPk(id);
+
+        if (!userFound) {
+            return res.status(404).json({
+                status: 'fail',
+                message: 'Usuário não encontrado.'
+            });
+        }
+
+        // Remove a senha do objeto do usuário para segurança
+        delete userFound.password;
+
+        // Retorna o usuário encontrado
+        return res.status(200).json({
+            status: 'success',
+            data: userFound
+        });
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({
             status: 'fail',
-            message: 'Email ou senha incorretos.'
+            message: 'Erro ao buscar usuário.'
         });
     }
-
-    const token = generateToken({
-        id: result.id,
-    });
-
-    return res.json({
-        status: 'success',
-        token,
-    })
-
-
-}
+};
 
 
 
-module.exports = { signup, login, deleteUser, updateUser, logout };
+
+module.exports = { signup, login, deleteUser, updateUser, logout, getAllUsers, getUserById };

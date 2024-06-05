@@ -1,18 +1,23 @@
 // rotas http
 
 const express = require('express');
-const { signup, login, deleteUser, updateUser, logout } = require('../controller/authController');
+
+const { signup, login, deleteUser, updateUser, logout, getAllUsers, getUserById } = require('../controller/authController');
 
 const router = express.Router();
 
-router.route('/signup').post(signup);
+router.post('/signup', signup);
 
-router.route('/login').post(login);
+router.post('/login', login);
 
-router.route('/deleteUser').delete(deleteUser);
+router.get('/logout', logout);
 
-router.route('/updateUser').put(updateUser);
+router.delete('/delete/:id', deleteUser);
 
-router.route('/logout').post(logout);
+router.put('/update/:id', updateUser);
+
+router.get('/users', getAllUsers);
+
+router.get('/user/:id', getUserById);
 
 module.exports = router;
