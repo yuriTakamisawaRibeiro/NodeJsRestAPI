@@ -260,8 +260,50 @@ const getUserById = async (req, res, next) => {
         });
     }
 };
+const changePassword = async (req, res, next) => {
+    const { id } = req.user; // Obtém o ID do usuário a partir dos dados do usuário logado
+    const { oldPassword, newPassword } = req.body; // Obtém as senhas do corpo da requisição
+
+    try {
+        // Verifica se o usuário existe antes de tentar atualizar a senha
+        const existingUser = await user.findByPk(id);
+        if (!existingUser) {
+            return res.status(404).json({
+                status: 'fail',
+                message: 'Usuário não encontrado.'
+            });
+        }
+
+        // Verifica se a senha antiga está correta
+        const isMatch = await bcrypt.compare(oldPassword, existingUser.password);
+        if (!isMatch) {
+            return res.status(401).json({
+                status: 'fail',
+                message: 'Senha antiga incorreta.'
+            });
+        }
+
+        // Atualiza a senha do usuário no banco de dados
+        const hashedPassword = await bcrypt.hash(newPassword, 10); // Criptografa a nova senha
+        existingUser.password = hashedPassword;
+        const updatedUser = await existingUser.save();
+
+        // Retorna sucesso
+        return res.status(200).json({
+            status: 'success',
+            message: 'Senha atualizada com sucesso.'
+        });
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({
+            status: 'fail',
+            message: 'Erro interno do servidor.'
+        });
+    }
+};
+
+module.exports = { signup, login, deleteUser, updateUser, logout, getAllUsers, getUserById, changePassword };
 
 
 
 
-module.exports = { signup, login, deleteUser, updateUser, logout, getAllUsers, getUserById };
