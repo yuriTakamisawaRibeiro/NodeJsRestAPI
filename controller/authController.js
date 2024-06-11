@@ -301,8 +301,65 @@ const changePassword = async (req, res, next) => {
         });
     }
 };
+const changeEmail = async (req, res, next) => {
+    const { id } = req.user;
+    const { newEmail } = req.body;
 
-module.exports = { signup, login, deleteUser, updateUser, logout, getAllUsers, getUserById, changePassword };
+    try {
+        const existingUser = await user.findByPk(id);
+        if (!existingUser) {
+            return res.status(404).json({
+                status: 'fail',
+                message: 'Usuário não encontrado.'
+            });
+        }
+
+        existingUser.email = newEmail;
+        const updatedUser = await existingUser.save();
+
+        return res.status(200).json({
+            status: 'success',
+            message: 'Email atualizado com sucesso.'
+        });
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({
+            status: 'fail',
+            message: 'Erro interno do servidor.'
+        });
+    }
+};
+
+const changeName = async (req, res, next) => {
+    const { id } = req.user;
+    const { newName } = req.body;
+
+    try {
+        const existingUser = await user.findByPk(id);
+        if (!existingUser) {
+            return res.status(404).json({
+                status: 'fail',
+                message: 'Usuário não encontrado.'
+            });
+        }
+
+        existingUser.name = newName;
+        const updatedUser = await existingUser.save();
+
+        return res.status(200).json({
+            status: 'success',
+            message: 'Nome atualizado com sucesso.'
+        });
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({
+            status: 'fail',
+            message: 'Erro interno do servidor.'
+        });
+    }
+};
+
+module.exports = { signup, login, deleteUser, updateUser, logout, getAllUsers, getUserById, changePassword, changeEmail,changeName };
 
 
 

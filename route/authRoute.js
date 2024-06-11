@@ -2,7 +2,7 @@
 
 const express = require('express');
 
-const { signup, login, deleteUser, updateUser, logout, getAllUsers, getUserById, changePassword } = require('../controller/authController');
+const { signup, login, deleteUser, updateUser, logout, getAllUsers, getUserById, changePassword, changeEmail, changeName } = require('../controller/authController');
 
 const authenticateToken = require('../middleware/authenticateToken');
 
@@ -24,5 +24,9 @@ router.get('/users', getAllUsers);
 router.get('/user/:id', getUserById);
 
 router.post('/changePassword', authenticateToken, changePassword);
+
+router.post('/changeEmail', authenticateToken, changeEmail);
+
+router.post('/changeName', authenticateToken, changeName);
 
 module.exports = router;
