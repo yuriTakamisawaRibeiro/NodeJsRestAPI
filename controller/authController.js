@@ -1,7 +1,9 @@
 const user = require('../db/models/user');
+const Schedule = require('../db/models/schedule')
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
 const { Op } = require('sequelize');
+const mysql = require('mysql2/promise');
 
 const generateToken = (payload) => {
     return jwt.sign(payload, process.env.JWT_SECRET_KEY, {
@@ -246,6 +248,9 @@ const getUserById = async (req, res, next) => {
 
         // Remove a senha do objeto do usuário para segurança
         delete userFound.password;
+        delete userFound.id;
+        delete userFound.email;
+        delete userFound.userType;
 
         // Retorna o usuário encontrado
         return res.status(200).json({
@@ -260,6 +265,7 @@ const getUserById = async (req, res, next) => {
         });
     }
 };
+
 const changePassword = async (req, res, next) => {
     const { id } = req.user; // Obtém o ID do usuário a partir dos dados do usuário logado
     const { oldPassword, newPassword } = req.body; // Obtém as senhas do corpo da requisição
@@ -329,6 +335,94 @@ const changeEmail = async (req, res, next) => {
         });
     }
 };
+const schedule = async (req, res, next) => {
+    try {
+      const { data, hora } = req.body; // Dados do agendamento
+      const terapeutaId = req.user.id; // ID do usuário autenticado
+  
+      // Lógica para criar o agendamento no banco de dados
+      const novoAgendamento = await Schedule.create({
+        terapeutaId,
+        data,
+        hora,
+        estado: '1',
+        pacienteId: null
+      });
+  
+      // Agendamento criado com sucesso!
+      res.status(201).json({ message: 'Agendamento criado com sucesso!', agendamento: novoAgendamento });
+    } catch (error) {
+      // Trate possíveis erros
+      console.error('Erro ao criar agendamento:', error);
+      res.status(500).json({ error: 'Erro ao criar agendamento' });
+    }
+  };
+  const getScheduleFromDB = async () => {
+    try {
+      const connection = await mysql.createConnection({
+        host: process.env.DB_HOST,
+        user: process.env.DB_USERNAME,
+        password: process.env.DB_PASSWORD,
+        database: process.env.DB_NAME,
+      });
+  
+      // Execute a consulta SQL para obter os agendamentos
+      const [rows] = await connection.execute('SELECT * FROM schedule WHERE estado = "1"');
+  
+      // Feche a conexão
+      connection.end();
+  
+      return rows; // Retorna os agendamentos reais
+    } catch (error) {
+      console.error('Erro ao obter agendamentos do banco de dados:', error);
+      return []; // Em caso de erro, retorne um array vazio
+    }
+  };
+
+  const getScheduleByEstado = async (req, res) => {
+    try{
+    const agendamentos = await getScheduleFromDB();
+        res.json(agendamentos);
+      } catch (error) {
+        res.status(500).json({ error: 'Erro ao obter agendamentos do banco de dados' });
+      }}
+      const testGetSchedule = async () => {
+        try {
+          const agendamentos = await getScheduleFromDB();
+          console.log('Agendamentos obtidos:', agendamentos);
+        } catch (error) {
+          console.error('Erro ao obter agendamentos:', error);
+        }
+      };
+      const scheduleUpdate = async (req, res) => {
+        const { id } = req.params; // ID do agendamento
+        const pacienteId = req.user.id;
+        if (!id) { // Verifica se o ID foi extraído
+            return res.status(400).json({ error: 'ID do agendamento é obrigatório' });
+          }
+    
+        try {
+            
+            
+            const novoAgendamento = await Schedule.update({
+                estado: '2',
+                pacienteId
+            }, {
+                where:{
+                    id: id
+                }
+            })
+           
+            
+    
+            res.status(200).json({ message: 'Agendamento atualizado com sucesso!' });
+        } catch (error) {
+            console.error('Erro ao atualizar agendamento:', error);
+            res.status(500).json({ error: 'Erro ao atualizar agendamento' });
+        }
+    };
+
+      
 
 const changeName = async (req, res, next) => {
     const { id } = req.user;
@@ -357,9 +451,15 @@ const changeName = async (req, res, next) => {
             message: 'Erro interno do servidor.'
         });
     }
-};
 
-module.exports = { signup, login, deleteUser, updateUser, logout, getAllUsers, getUserById, changePassword, changeEmail,changeName };
+    
+    
+    
+};
+testGetSchedule();
+
+
+module.exports = { signup, login, deleteUser, updateUser, logout, getAllUsers, getUserById, changePassword, changeEmail,changeName,schedule, getScheduleByEstado, scheduleUpdate};
 
 
 
